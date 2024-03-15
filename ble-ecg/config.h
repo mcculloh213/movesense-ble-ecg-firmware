@@ -90,6 +90,19 @@ const uint16_t ecgMeasurementIntervalCharUUID16 = 0x2BE3;
 /** 16-bit UUID for Movement Measurement Interval Characteristic. */
 const uint16_t movMeasurementIntervalCharUUID16 = 0x2BE4;
 
+// Accelerometer GATT Services and Characteristics UUIDs:
+
+/** 16-bit UUID for Accelerometer Service. */
+const uint16_t accSvcUUID16 = 0x185A;
+
+/** 16-bit UUID for Acceleration Characteristic. */
+const uint16_t accCharUUID16 = 0x2BE5;
+
+/** 16-bit UUID for Accelerometer Measurement Interval Characteristic. */
+const uint16_t accMeasurementIntervalCharUUID16 = 0x2BE6;
+/** 16-bit UUID for Accelerometer Object Size Characteristic. */
+const uint16_t accObjectSizeCharUUID16 = 0x2BE7;
+
 
 // ECG value definitions:
 
@@ -113,10 +126,20 @@ struct Vector3
     T z;
 };
 
+template<class T>
+struct Vector4
+{
+    T x;
+    T y;
+    T z;
+    uint32_t timestamp;
+};
+
 /** Type definition of Acceleration value. */
 typedef int16_t acc_t;
 /** Type definition of Acceleration vector. */
 typedef Vector3<acc_t> acc_vec_t;
+typedef Vector4<acc_t> acc_vec4_t;
 
 /** Maximum value of acceleration. */
 const acc_t MAX_ACC = +32767;

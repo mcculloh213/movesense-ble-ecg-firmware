@@ -68,6 +68,15 @@ public:
      */
     bool addSample(T sample);
     /**
+     * @brief Adds a new sample to the current buffer if not full.
+     * 
+     * @param sample Sample to add.
+     * @param timestamp Timestamp of sample.
+     * @return true New sample was added successfully.
+     * @return false New sample was not added since current buffer ist full. Call switchBuffer() to switch to the next buffer and call this method again.
+     */
+    bool addSample(T sample, uint32_t timestamp);
+    /**
      * @brief Sets the timestamp to the current sample.
      * 
      * @param timestamp Timestamp to write to the current sample.
@@ -182,6 +191,40 @@ bool SeriesBuffer<T>::addSample(T sample)
 
     // Copy bytes of sample to buffer.
     memcpy(currentBuffer + offset, sampleBytes, sizeof(T));
+    // Increase number of buffered samples.
+    this->bufferedSamples++;
+
+    return true;
+}
+
+template <class T>
+bool SeriesBuffer<T>::addSample(T sample, uint32_t timestamp)
+{
+    // Verify that new sample and timestamp still fit into current buffer.
+    if (!this->canAddSample()) // You might need to update this method to account for the additional timestamp size
+    {
+        return false;
+    }
+
+    // Get a pointer to the start of the current buffer.
+    uint8_t* currentBuffer = this->getCurrentBuffer();
+
+    // Compute the start index for the new timestamp and sample in the current buffer.
+    size_t offset = sizeof(timestamp_t) + (sizeof(T) + sizeof(uint32_t)) * this->bufferedSamples;
+
+    // Cast the timestamp and sample to bytes.
+    uint8_t* timestampBytes = (uint8_t*)&timestamp;
+    uint8_t* sampleBytes = (uint8_t*)&sample;
+
+    // Copy bytes of timestamp to the buffer.
+    memcpy(currentBuffer + offset, timestampBytes, sizeof(uint32_t));
+
+    // Adjust offset for the sample based on timestamp size.
+    offset += sizeof(uint32_t);
+
+    // Copy bytes of sample to buffer.
+    memcpy(currentBuffer + offset, sampleBytes, sizeof(T));
+
     // Increase number of buffered samples.
     this->bufferedSamples++;
 

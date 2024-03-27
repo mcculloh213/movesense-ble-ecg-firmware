@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/MovesenseCoreLib/include/whiteboard/src"
+                "${workspaceFolder}/MovesenseCoreLib/include/whiteboard/src",
+                "${workspaceFolder}/MovesenseCoreLib/include/whiteboard"
             ],
             "defines": [
                 "_DEBUG",

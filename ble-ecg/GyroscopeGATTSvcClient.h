@@ -7,18 +7,18 @@
 #include "config.h"
 
 
-class AccGATTSvcClient FINAL :
+class GyroscopeGATTSvcClient FINAL :
     private wb::ResourceClient,
     public wb::LaunchableModule
 {
 public:
-    /** Name of this class. Used in StartupProvider list. */
+    /** Name of the class. Used in StartupProvider list. */
     static const char* const LAUNCHABLE_NAME;
 
-    /** Constructor for Movement GATT Service. */
-    AccGATTSvcClient();
-    /** Destructor for Movement GATT Service. */
-    ~AccGATTSvcClient();
+    /** Constructor for Gyroscope GATT Service. */
+    GyroscopeGATTSvcClient();
+    /** Destructor for Gyroscope GATT Service. */
+    ~GyroscopeGATTSvcClient();
 
 private:
 
@@ -55,8 +55,8 @@ private:
 
     // GATT Service:
 
-    /** The handle of the Acceleration GATT Service. */
-    int32_t mAccSvcHandle;
+    /** The handle of the Gyroscope GATT Service. */
+    int32_t mSvcHandle;
 
     /**
      * @brief Configures the GATT Service.
@@ -66,46 +66,46 @@ private:
 
     // GATT Characteristics:
 
-    /** The handle of the Acceleration GATT Characteristics. */
-    int32_t mAccCharHandle;
-    /** The resource ID of the Acceleration GATT Characteristics. */
-    wb::ResourceId mAccCharResource;
+    /** The handle of the Gyroscope GATT Characteristics. */
+    int32_t mCharHandle;
+    /** The resource ID of the Gyroscope GATT Characteristics. */
+    wb::ResourceId mCharResource;
 
-    /** The handle of the Measurement Interval GATT Characteristics. */
-    int32_t mMeasurementIntervalCharHandle;
-    /** The resource ID of the Measurement Interval GATT Characteristics. */
-    wb::ResourceId mMeasurementIntervalCharResource;
+    /** The handle of the Sample Rate GATT Characteristics. */
+    int32_t mSampleRateCharHandle;
+    /** The resource ID of the Sample Rate GATT Characteristics. */
+    wb::ResourceId mSampleRateCharResource;
 
-    /** The handle of the Accelerometer Object Size GATT Characteristics. */
-    int32_t mObjectSizeCharHandle;
-    /** The resource ID of the Accelerometer Object Size GATT Characteristics. */
-    wb::ResourceId mObjectSizeCharResource;
+    /** The handle of the Gyroscope Buffer Size GATT Characteristics. */
+    int32_t mBufferSizeCharHandle;
+    /** The resource ID of the Gyroscope Buffer Size GATT Characteristics. */
+    wb::ResourceId mBufferSizeCharResource;
 
 
     // Buffers:
 
-    /** Buffer to hold Acceleration samples. */
-    SeriesBuffer<acc_vec4_t>* accBuffer;
+    /** Buffer to hold Gyroscope samples. */
+    SeriesBuffer<gyr_vec4_t>* gyroBuffer;
 
 
-    // Acceleration Samples:
+    // Gyroscope Samples:
 
     /**
-     * @brief Converts the sensor's Acceleration vector to a BLE Acceleration vector.
+     * @brief Converts the sensor's Gyroscope vector to a BLE Gyroscope vector.
      * 
-     * @param accVector Sensor's Acceleration vector to convert.
+     * @param gyroVector Sensor's Gyroscope vector to convert.
      * @param timestamp Sensor's timestamp.
-     * @return acc_vec4_t Converted BLE Acceleration vector with timestamp.
+     * @return gyr_vec4_t Converted BLE Gyroscope vector with timestamp.
      */
-    acc_vec4_t convertAccSample(whiteboard::FloatVector3D accVector, uint32_t timestamp);
+    gyr_vec4_t convertGyroSample(whiteboard::FloatVector3D gyroVector, uint32_t timestamp);
 
     /**
-     * @brief Sends the Acceleration buffer via BLE.
+     * @brief Sends the Gyroscope buffer via BLE.
      * 
      * @return true Sending was successful.
-     * @return false Sending was not successful since Acceleration buffer is not initialized.
+     * @return false Sending was not successful since Gyroscope buffer is not initialized.
      */
-    bool sendAccBuffer();
+    bool sendGyroBuffer();
 
 
     // Movement Measurement Interval:
@@ -148,16 +148,16 @@ private:
     void setMeasurementInterval(uint16_t value);
 
     /**
-     * @brief Subscribes to Acceleration samples.
+     * @brief Subscribes to Gyroscope samples.
      */
-    void subscribeToAccSamples();
+    void subscribeToGyroSamples();
     /**
-     * @brief Unsubscribes from Acceleration samples.
+     * @brief Unsubscribes from Gyroscope samples.
      */
-    void unsubscribeFromAccSamples();
+    void unsubscribeFromGyroSamples();
 
     /** Number of objects per sample message. */
-    uint16_t objectSize;
+    uint16_t mObjectSize;
     /**
      * @brief Sets the number of objects per sample message.
      * 

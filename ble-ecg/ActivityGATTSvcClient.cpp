@@ -570,9 +570,9 @@ void ActivityGATTSvcClient::finishMovementSeries(timestamp_t t, size_t n, size_t
 
 acc_vec_t ActivityGATTSvcClient::convertAccSample(whiteboard::FloatVector3D accVector)
 {
-    float accX = accVector.x * accScale;
-    float accY = accVector.y * accScale;
-    float accZ = accVector.z * accScale;
+    float accX = accVector.x * ACCELEROMETER_SCALEING_FACTOR;
+    float accY = accVector.y * ACCELEROMETER_SCALEING_FACTOR;
+    float accZ = accVector.z * ACCELEROMETER_SCALEING_FACTOR;
 
     if (accX > MAX_ACC || accX < MIN_ACC)
     {
@@ -596,9 +596,9 @@ acc_vec_t ActivityGATTSvcClient::convertAccSample(whiteboard::FloatVector3D accV
 
 gyr_vec_t ActivityGATTSvcClient::convertGyrSample(whiteboard::FloatVector3D gyrVector)
 {
-    float gyrX = gyrVector.x * gyrScale;
-    float gyrY = gyrVector.y * gyrScale;
-    float gyrZ = gyrVector.z * gyrScale;
+    float gyrX = gyrVector.x * GYROSCOPE_SCALING_FACTOR;
+    float gyrY = gyrVector.y * GYROSCOPE_SCALING_FACTOR;
+    float gyrZ = gyrVector.z * GYROSCOPE_SCALING_FACTOR;
 
     if (gyrX > MAX_GYR || gyrX < MIN_GYR)
     {
@@ -622,9 +622,9 @@ gyr_vec_t ActivityGATTSvcClient::convertGyrSample(whiteboard::FloatVector3D gyrV
 
 mag_vec_t ActivityGATTSvcClient::convertMagSample(whiteboard::FloatVector3D magVector)
 {
-    float magX = magVector.x * magScale;
-    float magY = magVector.y * magScale;
-    float magZ = magVector.z * magScale;
+    float magX = magVector.x * MAGNETOMETER_SCALING_FACTOR;
+    float magY = magVector.y * MAGNETOMETER_SCALING_FACTOR;
+    float magZ = magVector.z * MAGNETOMETER_SCALING_FACTOR;
 
     if (magX > MAX_MAG || magX < MIN_MAG)
     {

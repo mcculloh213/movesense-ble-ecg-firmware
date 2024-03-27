@@ -1,7 +1,9 @@
 // #include "EcgGATTSvcClient.h"
 // #include "MovGATTSvcClient.h"
 #include "ActivityGATTSvcClient.h"
-#include "AccGATTSvcClient.h"
+#include "AccelerometerGATTSvcClient.h"
+#include "GyroscopeGATTSvcClient.h"
+#include "MagnetometerGATTSvcClient.h"
 #include "WakeClient.h"
 
 #include "movesense.h"
@@ -10,14 +12,16 @@ MOVESENSE_APPLICATION_STACKSIZE(1024)
 
 // Add Providers:
 
-MOVESENSE_PROVIDERS_BEGIN(2)
+MOVESENSE_PROVIDERS_BEGIN(4)
 
 // MOVESENSE_PROVIDER_DEF(EcgGATTSvcClient)
 // MOVESENSE_PROVIDER_DEF(ActivityGATTSvcClient)
-MOVESENSE_PROVIDER_DEF(AccGATTSvcClient)
+MOVESENSE_PROVIDER_DEF(AccelerometerGATTSvcClient)
+MOVESENSE_PROVIDER_DEF(GyroscopeGATTSvcClient)
+MOVESENSE_PROVIDER_DEF(MagnetometerGATTSvcClient)
 MOVESENSE_PROVIDER_DEF(WakeClient)
 
-MOVESENSE_PROVIDERS_END(2)
+MOVESENSE_PROVIDERS_END(4)
 
 // Load Features:
 
@@ -39,8 +43,8 @@ OPTIONAL_CORE_MODULE(CustomGattService, true)
 // Define Application Specification:
 
 APPINFO_NAME("AgilityIoT");
-APPINFO_VERSION("0.0.1");
-APPINFO_COMPANY("E2E");
+APPINFO_VERSION("0.1.1");
+APPINFO_COMPANY("End to End Innovations LLC");
 
 // Enable Bluetooth Low Energy Communication:
 

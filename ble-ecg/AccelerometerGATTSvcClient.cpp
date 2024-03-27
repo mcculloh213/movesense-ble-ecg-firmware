@@ -2,7 +2,7 @@
 
 #include <meas_acc/resources.h>
 
-#include "AccGATTSvcClient.h"
+#include "AccelerometerGATTSvcClient.h"
 #include "common/core/debug.h"
 #include "oswrapper/thread.h"
 
@@ -12,47 +12,47 @@
 
 // Accelerometer GATT Service implementations:
 
-const char* const AccGATTSvcClient::LAUNCHABLE_NAME = "AccGattSvc";
+const char* const AccelerometerGATTSvcClient::LAUNCHABLE_NAME = "AccGattSvc";
 
-AccGATTSvcClient::AccGATTSvcClient() :
+AccelerometerGATTSvcClient::AccelerometerGATTSvcClient() :
     ResourceClient(WBDEBUG_NAME(__FUNCTION__), WB_EXEC_CTX_APPLICATION),
     LaunchableModule(LAUNCHABLE_NAME, WB_EXEC_CTX_APPLICATION),
-    mAccSvcHandle(0),
-    mAccCharHandle(0),
-    mAccCharResource(wb::ID_INVALID_RESOURCE),
-    mMeasurementIntervalCharHandle(0),
-    mMeasurementIntervalCharResource(wb::ID_INVALID_RESOURCE),
-    mObjectSizeCharHandle(0),
-    mObjectSizeCharResource(wb::ID_INVALID_RESOURCE),
+    mSvcHandle(0),
+    mCharHandle(0),
+    mCharResource(wb::ID_INVALID_RESOURCE),
+    mSampleRateCharHandle(0),
+    mSampleRateCharResource(wb::ID_INVALID_RESOURCE),
+    mBufferSizeCharHandle(0),
+    mBufferSizeCharResource(wb::ID_INVALID_RESOURCE),
     measurementInterval(DEFAULT_MOV_MEASUREMENT_INTERVAL),
-    objectSize(DEFAULT_MOV_OBJECT_SIZE)
+    mObjectSize(DEFAULT_MOV_OBJECT_SIZE)
 {
-    this->accBuffer = new SeriesBuffer<acc_vec4_t>(this->objectSize, numberOfMovAccBuffers);
+    this->accBuffer = new SeriesBuffer<acc_vec4_t>(this->mObjectSize, numberOfMovAccBuffers);
 }
 
-AccGATTSvcClient::~AccGATTSvcClient()
+AccelerometerGATTSvcClient::~AccelerometerGATTSvcClient()
 {
     delete this->accBuffer;
 }
 
-bool AccGATTSvcClient::initModule()
+bool AccelerometerGATTSvcClient::initModule()
 {
-    DEBUGLOG("AccGATTSvcClient::initModule");
+    DEBUGLOG("AccelerometerGATTSvcClient::initModule");
 
     this->mModuleState = WB_RES::ModuleStateValues::INITIALIZED;
     return true;
 }
 
-void AccGATTSvcClient::deinitModule()
+void AccelerometerGATTSvcClient::deinitModule()
 {
-    DEBUGLOG("AccGATTSvcClient::deinitModule");
+    DEBUGLOG("AccelerometerGATTSvcClient::deinitModule");
 
     this->mModuleState = WB_RES::ModuleStateValues::UNINITIALIZED;
 }
 
-bool AccGATTSvcClient::startModule()
+bool AccelerometerGATTSvcClient::startModule()
 {
-    DEBUGLOG("AccGATTSvcClient::startModule");
+    DEBUGLOG("AccelerometerGATTSvcClient::startModule");
 
     this->mModuleState = WB_RES::ModuleStateValues::STARTED;
 
@@ -69,37 +69,37 @@ bool AccGATTSvcClient::startModule()
     return true;
 }
 
-void AccGATTSvcClient::stopModule()
+void AccelerometerGATTSvcClient::stopModule()
 {
-    DEBUGLOG("AccGATTSvcClient::stopModule");
+    DEBUGLOG("AccelerometerGATTSvcClient::stopModule");
 
     // Unsubscribe from Accelerometer samples
     this->unsubscribeFromAccSamples();
-    this->mAccCharResource = wb::ID_INVALID_RESOURCE;
+    this->mCharResource = wb::ID_INVALID_RESOURCE;
 
     // Unsubscribe and clear Measurement Interval GATT characteristic
-    this->asyncUnsubscribe(this->mMeasurementIntervalCharResource);
-    this->mMeasurementIntervalCharResource = wb::ID_INVALID_RESOURCE;
+    this->asyncUnsubscribe(this->mSampleRateCharResource);
+    this->mSampleRateCharResource = wb::ID_INVALID_RESOURCE;
 
     // Unsubscribe and clear Object Size GATT characteristics.
-    this->asyncUnsubscribe(this->mObjectSizeCharResource);
-    this->mObjectSizeCharResource = wb::ID_INVALID_RESOURCE;
+    this->asyncUnsubscribe(this->mBufferSizeCharResource);
+    this->mBufferSizeCharResource = wb::ID_INVALID_RESOURCE;
 
     this->mModuleState = WB_RES::ModuleStateValues::STOPPED;
 }
 
-void AccGATTSvcClient::onGetResult(wb::RequestId requestId,
+void AccelerometerGATTSvcClient::onGetResult(wb::RequestId requestId,
                                    wb::ResourceId resourceId,
                                    wb::Result resultCode,
                                    const wb::Value& rResultData)
 {
-    DEBUGLOG("AccGATTSvcClient::onGetResult");
+    DEBUGLOG("AccelerometerGATTSvcClient::onGetResult");
 
     switch(resourceId.localResourceId)
     {
         case WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE::LID:
         {
-            DEBUGLOG("AccGATTSvcClient::onGetResult - COMM_BLE_GATTSVC_SVCHANDLE");
+            DEBUGLOG("AccelerometerGATTSvcClient::onGetResult - COMM_BLE_GATTSVC_SVCHANDLE");
 
             const WB_RES::GattSvc &svc = rResultData.convertTo<const WB_RES::GattSvc&>();
             for (size_t i = 0; i < svc.chars.size(); i++)
@@ -109,14 +109,14 @@ void AccGATTSvcClient::onGetResult(wb::RequestId requestId,
 
                 switch (uuid16)
                 {
-                    case accCharUUID16:
-                        this->mAccCharHandle = c.handle.hasValue() ? c.handle.getValue() : 0;
+                    case ACCELEROMETER_CHARACTERISTIC_UUID16:
+                        this->mCharHandle = c.handle.hasValue() ? c.handle.getValue() : 0;
                         break;
-                    case accMeasurementIntervalCharUUID16:
-                        this->mMeasurementIntervalCharHandle = c.handle.hasValue() ? c.handle.getValue() : 0;
+                    case ACCELEROMETER_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16:
+                        this->mSampleRateCharHandle = c.handle.hasValue() ? c.handle.getValue() : 0;
                         break;
-                    case accObjectSizeCharUUID16:
-                        this->mObjectSizeCharHandle = c.handle.hasValue() ? c.handle.getValue() : 0;
+                    case ACCELEROMETER_OBJECT_SIZE_CHARACTERISTIC_UUID16:
+                        this->mBufferSizeCharHandle = c.handle.hasValue() ? c.handle.getValue() : 0;
                         break;
                 }
             }
@@ -124,43 +124,43 @@ void AccGATTSvcClient::onGetResult(wb::RequestId requestId,
             // Force subscriptions asynchronously to save stack (will have stack overflow if not) 
 
             // Subscribe to listen to Movement Acceleration Characteristics notifications (someone enables/disables the NOTIFY characteristic)
-            this->asyncSubscribe(this->mAccCharResource, AsyncRequestOptions(NULL, 0, true));
-            // Subscribe to listen to Measurement Interval Characteristics notifications (someone writes new value to measurementIntervalChar) 
-            this->asyncSubscribe(this->mMeasurementIntervalCharResource, AsyncRequestOptions(NULL, 0, true));
-            // Subscribe to listen to Object Size Characteristics notifications (someone writes new value to objectSizeChar)
-            this->asyncSubscribe(this->mObjectSizeCharResource,  AsyncRequestOptions(NULL, 0, true));
+            this->asyncSubscribe(this->mCharResource, AsyncRequestOptions(NULL, 0, true));
+            // Subscribe to listen to Measurement Interval Characteristics notifications (someone writes new value to mSampleRateCharResource) 
+            this->asyncSubscribe(this->mSampleRateCharResource, AsyncRequestOptions(NULL, 0, true));
+            // Subscribe to listen to Object Size Characteristics notifications (someone writes new value to mBufferSizeCharResource)
+            this->asyncSubscribe(this->mBufferSizeCharResource,  AsyncRequestOptions(NULL, 0, true));
             break;
         }
     }
 }
 
-void AccGATTSvcClient::onPostResult(wb::RequestId requestId, 
+void AccelerometerGATTSvcClient::onPostResult(wb::RequestId requestId, 
                                     wb::ResourceId resourceId, 
                                     wb::Result resultCode, 
                                     const wb::Value& rResultData)
 {
-    DEBUGLOG("AccGATTSvcClient::onPostResult: %d", resultCode);
+    DEBUGLOG("AccelerometerGATTSvcClient::onPostResult: %d", resultCode);
 
     if (resultCode == wb::HTTP_CODE_CREATED)
     {
         // Accelerometer GATT service was created.
-        this->mAccSvcHandle = (int32_t)rResultData.convertTo<uint16_t>();
-        DEBUGLOG("MOV GATT service was created. Handle: %d", this->mAccSvcHandle);
+        this->mSvcHandle = (int32_t)rResultData.convertTo<uint16_t>();
+        DEBUGLOG("ACC GATT service was created. Handle: %d", this->mSvcHandle);
 
         // Request more info about created GATT service so we get the characteristics handles.
         this->asyncGet(
             WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE(),
             AsyncRequestOptions::Empty,
-            this->mAccSvcHandle
+            this->mSvcHandle
         );
     }
 }
 
-void AccGATTSvcClient::onNotify(wb::ResourceId resourceId,
+void AccelerometerGATTSvcClient::onNotify(wb::ResourceId resourceId,
                                 const wb::Value& value,
                                 const wb::ParameterList& rParameters)
 {
-    DEBUGLOG("AccGATTSvcClient::onNotify");
+    DEBUGLOG("AccelerometerGATTSvcClient::onNotify");
 
     switch (resourceId.localResourceId)
     {
@@ -200,7 +200,7 @@ void AccGATTSvcClient::onNotify(wb::ResourceId resourceId,
             auto charHandle = parameterRef.getCharHandle();
 
             // Set the current GATT characteristic.
-            if (charHandle == this->mMeasurementIntervalCharHandle)
+            if (charHandle == this->mSampleRateCharHandle)
             {
                 // Set Measurement Interval GATT Characteristic:
 
@@ -213,7 +213,7 @@ void AccGATTSvcClient::onNotify(wb::ResourceId resourceId,
                 // Update the Measurement Interval.
                 this->setMeasurementInterval(interval);
             }
-            else if (charHandle == this->mObjectSizeCharHandle)
+            else if (charHandle == this->mBufferSizeCharHandle)
             {
                 // Set Object Size GATT Characteristic:
 
@@ -221,7 +221,7 @@ void AccGATTSvcClient::onNotify(wb::ResourceId resourceId,
                 const WB_RES::Characteristic &charValue = value.convertTo<const WB_RES::Characteristic&>();
                 uint16_t size = *reinterpret_cast<const uint16_t*>(&charValue.bytes[0]);
 
-                DEBUGLOG("onNotify: objectSize: len: %d, new interval: %d", charValue.bytes.size(), size);
+                DEBUGLOG("onNotify: mObjectSize: len: %d, new size: %d", charValue.bytes.size(), size);
 
                 // Update the Object Size.
                 this->setObjectSize(size);
@@ -231,7 +231,7 @@ void AccGATTSvcClient::onNotify(wb::ResourceId resourceId,
     }
 }
 
-void AccGATTSvcClient::configGattSvc()
+void AccelerometerGATTSvcClient::configGattSvc()
 {
     // Define Accelerometer GATT Service and its Characteristics.
     WB_RES::GattSvc accGattSvc;
@@ -253,38 +253,55 @@ void AccGATTSvcClient::configGattSvc()
 
     // Specify Acceleration Characteristic
     accChar.props = wb::MakeArray<WB_RES::GattProperty>(&accCharProp, 1);
-    accChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&accCharUUID16), sizeof(uint16_t));
+    accChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_CHARACTERISTIC_UUID16), sizeof(uint16_t));
 
     // Specify Interval Characteristic
     measurementIntervalChar.props = wb::MakeArray<WB_RES::GattProperty>(measurementIntervalCharProps, 2);
-    measurementIntervalChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&accMeasurementIntervalCharUUID16), sizeof(uint16_t));
+    measurementIntervalChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16), sizeof(uint16_t));
     measurementIntervalChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->measurementInterval), sizeof(uint16_t));
 
     // Specify Size Characteristic
     objectSizeChar.props = wb::MakeArray<WB_RES::GattProperty>(objectSizeCharProps, 2);
-    objectSizeChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&accObjectSizeCharUUID16), sizeof(uint16_t));
-    objectSizeChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->objectSize), sizeof(uint16_t));
+    objectSizeChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_OBJECT_SIZE_CHARACTERISTIC_UUID16), sizeof(uint16_t));
+    objectSizeChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->mObjectSize), sizeof(uint16_t));
 
     // Combine Characteristics to Service
-    accGattSvc.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&accSvcUUID16), sizeof(uint16_t));
+    accGattSvc.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_SERVICE_UUID16), sizeof(uint16_t));
     accGattSvc.chars = wb::MakeArray<WB_RES::GattChar>(characteristics, 3);
 
     // Create custom GATT Service.
     this->asyncPost(WB_RES::LOCAL::COMM_BLE_GATTSVC(), AsyncRequestOptions::Empty, accGattSvc);
 }
 
-acc_vec4_t AccGATTSvcClient::convertAccSample(whiteboard::FloatVector3D accVector,
+acc_vec4_t AccelerometerGATTSvcClient::convertAccSample(whiteboard::FloatVector3D accVector,
                                               uint32_t timestamp)
 {
+    float accX = accVector.x * ACCELEROMETER_SCALEING_FACTOR;
+    float accY = accVector.y * ACCELEROMETER_SCALEING_FACTOR;
+    float accZ = accVector.z * ACCELEROMETER_SCALEING_FACTOR;
+
+    if (accX > MAX_ACC || accX < MIN_ACC)
+    {
+        accX = ERR_ACC;
+    }
+    if (accY > MAX_ACC || accY < MIN_ACC)
+    {
+        accY = ERR_ACC;
+    }
+    if (accZ > MAX_ACC || accZ < MIN_ACC)
+    {
+        accZ = ERR_ACC;
+    }
+
     acc_vec4_t value;
-    value.x = (acc_t)accVector.x;
-    value.y = (acc_t)accVector.y;
-    value.z = (acc_t)accVector.z;
+    value.x = static_cast<acc_t>(accX);
+    value.y = static_cast<acc_t>(accY);
+    value.z = static_cast<acc_t>(accZ);
     value.timestamp = timestamp;
     return value;
 }
 
-bool AccGATTSvcClient::sendAccBuffer()
+bool AccelerometerGATTSvcClient::sendAccBuffer()
 {
     // Get the current buffer and its size.
     size_t size = this->accBuffer->getSingleBufferSize();
@@ -295,26 +312,26 @@ bool AccGATTSvcClient::sendAccBuffer()
     this->accBuffer->switchBuffer();
 
     // Generate Acceleration Characteristics value to send.
-    WB_RES::Characteristic movAccCharacteristic;
-    movAccCharacteristic.bytes = wb::MakeArray<uint8_t>(currentBuffer, size);
+    WB_RES::Characteristic accCharacteristic;
+    accCharacteristic.bytes = wb::MakeArray<uint8_t>(currentBuffer, size);
 
     // Send Acceleration characteristics value.
     this->asyncPut(
         WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
         AsyncRequestOptions::Empty,
-        this->mAccSvcHandle,
-        this->mAccCharHandle,
-        movAccCharacteristic
+        this->mSvcHandle,
+        this->mCharHandle,
+        accCharacteristic
     );
     return true;
 }
 
-uint32_t AccGATTSvcClient::getSampleRate()
+uint32_t AccelerometerGATTSvcClient::getSampleRate()
 {
     return this->toSampleRate(this->measurementInterval);
 }
 
-uint32_t AccGATTSvcClient::toSampleRate(uint16_t interval)
+uint32_t AccelerometerGATTSvcClient::toSampleRate(uint16_t interval)
 {
     switch (interval)
     {
@@ -331,7 +348,7 @@ uint32_t AccGATTSvcClient::toSampleRate(uint16_t interval)
     }
 }
 
-void AccGATTSvcClient::setMeasurementInterval(uint16_t value)
+void AccelerometerGATTSvcClient::setMeasurementInterval(uint16_t value)
 {
     // Unsubscribe from current Accelerometer subscription
     this->unsubscribeFromAccSamples();
@@ -343,8 +360,8 @@ void AccGATTSvcClient::setMeasurementInterval(uint16_t value)
     this->asyncPut(
         WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
         AsyncRequestOptions::Empty,
-        this->mAccSvcHandle,
-        this->mMeasurementIntervalCharHandle,
+        this->mSvcHandle,
+        this->mSampleRateCharHandle,
         measurementIntervalChar
     );
     // Reset current Accelerometer buffers and start over.
@@ -353,7 +370,7 @@ void AccGATTSvcClient::setMeasurementInterval(uint16_t value)
     this->subscribeToAccSamples();
 }
 
-void AccGATTSvcClient::subscribeToAccSamples()
+void AccelerometerGATTSvcClient::subscribeToAccSamples()
 {
     // Compute desired sample rate.
     uint32_t sampleRate = this->getSampleRate();
@@ -365,7 +382,7 @@ void AccGATTSvcClient::subscribeToAccSamples()
     );
 }
 
-void AccGATTSvcClient::unsubscribeFromAccSamples()
+void AccelerometerGATTSvcClient::unsubscribeFromAccSamples()
 {
     // Compute desired sample rate.
     uint32_t sampleRate = this->getSampleRate();
@@ -377,21 +394,21 @@ void AccGATTSvcClient::unsubscribeFromAccSamples()
     );
 }
 
-void AccGATTSvcClient::setObjectSize(uint16_t value)
+void AccelerometerGATTSvcClient::setObjectSize(uint16_t value)
 {
     // Set new object size.
-    this->objectSize = value;
+    this->mObjectSize = value;
     // Change object size in buffers.
     this->accBuffer->setLength((size_t)value);
     // Set object size to GATT Characteristics value.
-    if (this->mObjectSizeCharHandle != 0) {
+    if (this->mBufferSizeCharHandle != 0) {
         WB_RES::Characteristic objectSizeChar;
-        objectSizeChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->objectSize, sizeof(uint16_t));
+        objectSizeChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->mObjectSize, sizeof(uint16_t));
         asyncPut(
             WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
             AsyncRequestOptions::Empty,
-            this->mAccSvcHandle,
-            this->mObjectSizeCharHandle,
+            this->mSvcHandle,
+            this->mBufferSizeCharHandle,
             objectSizeChar
         );
     }

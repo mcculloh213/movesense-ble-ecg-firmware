@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "Movesense"
-    ]
+    ],
+    "files.associations": {
+        "memory": "cpp"
+    }
 }

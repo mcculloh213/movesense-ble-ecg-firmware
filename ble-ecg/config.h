@@ -93,15 +93,54 @@ const uint16_t movMeasurementIntervalCharUUID16 = 0x2BE4;
 // Accelerometer GATT Services and Characteristics UUIDs:
 
 /** 16-bit UUID for Accelerometer Service. */
-const uint16_t accSvcUUID16 = 0x185A;
+const uint16_t ACCELEROMETER_SERVICE_UUID16 = 0x185A;
 
 /** 16-bit UUID for Acceleration Characteristic. */
-const uint16_t accCharUUID16 = 0x2BE5;
+const uint16_t ACCELEROMETER_CHARACTERISTIC_UUID16 = 0x2BE5;
 
 /** 16-bit UUID for Accelerometer Measurement Interval Characteristic. */
-const uint16_t accMeasurementIntervalCharUUID16 = 0x2BE6;
+const uint16_t ACCELEROMETER_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16 = 0x2BE6;
 /** 16-bit UUID for Accelerometer Object Size Characteristic. */
-const uint16_t accObjectSizeCharUUID16 = 0x2BE7;
+const uint16_t ACCELEROMETER_OBJECT_SIZE_CHARACTERISTIC_UUID16 = 0x2BE7;
+
+// Gyroscope GATT Services and Characteristics UUIDs:
+
+/** 16-bit UUID for Gyroscope Service. */
+const uint16_t GYROSCOPE_SERVICE_UUID16 = 0x185B;
+
+/** 16-bit UUID for Gyroscope Characteristic. */
+const uint16_t GYROSCOPE_CHARACTERISTIC_UUID16 = 0x2BE8;
+
+/** 16-bit UUID for Gyroscope Measurement Interval Characteristic. */
+const uint16_t GYROSCOPE_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16 = 0x2BE9;
+/** 16-bit UUID for Gyroscope Object Size Characteristic. */
+const uint16_t GYROSCOPE_OBJECT_SIZE_CHARACTERISTIC_UUID16 = 0x2BEA;
+
+// Magnetometer GATT Services and Characteristics UUIDs:
+
+/** 16-bit UUID for Magnetometer Service. */
+const uint16_t MAGNETOMETER_SERVICE_UUID16 = 0x185C;
+
+/** 16-bit UUID for Magnetometer Characteristic. */
+const uint16_t MAGNETOMETER_CHARACTERISTIC_UUID16 = 0x2BEB;
+
+/** 16-bit UUID for Magnetometer Measurement Interval Characteristic. */
+const uint16_t MAGNETOMETER_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16 = 0x2BEC;
+/** 16-bit UUID for Magnetometer Object Size Characteristic. */
+const uint16_t MAGNETOMETER_OBJECT_SIZE_CHARACTERISTIC_UUID16 = 0x2BED;
+
+// Electrocardiogram GATT Services and Characteristics UUIDs:
+
+/** 16-bit UUID for Electrocardiogram Service. */
+const uint16_t ELECTROCARDIOGRAM_SERVICE_UUID16 = 0x185D;
+
+/** 16-bit UUID for Electrocardiogram Characteristic. */
+const uint16_t ELECTROCARDIOGRAM_CHARACTERISTIC_UUID16 = 0x2BEE;
+
+/** 16-bit UUID for Electrocardiogram Measurement Interval Characteristic. */
+const uint16_t ELECTROCARDIOGRAM_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16 = 0x2BEF;
+/** 16-bit UUID for Electrocardiogram Object Size Characteristic. */
+const uint16_t ELECTROCARDIOGRAM_OBJECT_SIZE_CHARACTERISTIC_UUID16 = 0x2BF0;
 
 
 // ECG value definitions:
@@ -152,6 +191,7 @@ const acc_t ERR_ACC = -32768;
 typedef int16_t gyr_t;
 /** Type definition of Gyroscope vector. */
 typedef Vector3<gyr_t> gyr_vec_t;
+typedef Vector4<gyr_t> gyr_vec4_t;
 
 /** Maximum value of Gyroscope. */
 const gyr_t MAX_GYR = +32767;
@@ -164,6 +204,7 @@ const gyr_t ERR_GYR = -32768;
 typedef int16_t mag_t;
 /** Type definition of Magnetic Field vector. */
 typedef Vector3<mag_t> mag_vec_t;
+typedef Vector4<mag_t> mag_vec4_t;
 
 /** Maximum value of Magnetic Field. */
 const mag_t MAX_MAG = +32767;
@@ -186,8 +227,8 @@ struct mov_t
 };
 
 /** Scaling factor of acceleration. Applied before converting to integers. */
-const float accScale = 100.0f;
+const float ACCELEROMETER_SCALEING_FACTOR = 100.0f;
 /** Scaling factor of gyroscope. Applied before converting to integers. */
-const float gyrScale = 10.0f;
+const float GYROSCOPE_SCALING_FACTOR = 10.0f;
 /** Scaling factor of magnetic field. Applied before converting to integers. */
-const float magScale = 100.0f;
+const float MAGNETOMETER_SCALING_FACTOR = 100.0f;

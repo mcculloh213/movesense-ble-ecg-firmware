@@ -24,15 +24,15 @@ AccelerometerGATTSvcClient::AccelerometerGATTSvcClient() :
     mSampleRateCharResource(wb::ID_INVALID_RESOURCE),
     mBufferSizeCharHandle(0),
     mBufferSizeCharResource(wb::ID_INVALID_RESOURCE),
-    measurementInterval(DEFAULT_MOV_MEASUREMENT_INTERVAL),
-    mObjectSize(DEFAULT_MOV_OBJECT_SIZE)
+    mMeasurementInterval(DEFAULT_MOV_MEASUREMENT_INTERVAL),
+    mBufferSize(DEFAULT_MOV_OBJECT_SIZE)
 {
-    this->accBuffer = new SeriesBuffer<acc_vec4_t>(this->mObjectSize, numberOfMovAccBuffers);
+    this->pBuffer = new SeriesBuffer<acc_vec4_t>(this->mBufferSize, numberOfMovAccBuffers);
 }
 
 AccelerometerGATTSvcClient::~AccelerometerGATTSvcClient()
 {
-    delete this->accBuffer;
+    delete this->pBuffer;
 }
 
 bool AccelerometerGATTSvcClient::initModule()
@@ -57,7 +57,7 @@ bool AccelerometerGATTSvcClient::startModule()
     this->mModuleState = WB_RES::ModuleStateValues::STARTED;
 
     // Set object size and allocate buffer.
-    this->setObjectSize(DEFAULT_MOV_OBJECT_SIZE);
+    this->setBufferSize(DEFAULT_MOV_OBJECT_SIZE);
     // Set measurement interval to compute Accelerometer sampling frequency.
     this->setMeasurementInterval(DEFAULT_MOV_MEASUREMENT_INTERVAL);
     // Subscribe to Accelerometer samples with computed sampling frequency.
@@ -178,15 +178,15 @@ void AccelerometerGATTSvcClient::onNotify(wb::ResourceId resourceId,
             {
                 auto accSample = this->convertAccSample(accData.arrayAcc[i], timestamp);
                 // Add converted sample to Acceleration buffer
-                this->accBuffer->addSample(accSample);
+                this->pBuffer->addSample(accSample);
 
                 // If buffer is full, add timestamp and send samples.
-                if (!this->accBuffer->canAddSample())
+                if (!this->pBuffer->canAddSample())
                 {
                     // Compute timestamp.
-                    timestamp_t t = timestamp - ((numberOfSamples - i - 1) * this->measurementInterval);
+                    timestamp_t t = timestamp - ((numberOfSamples - i - 1) * this->mMeasurementInterval);
                     // Set timestamp to timestamp of last sample in buffer.
-                    this->accBuffer->setTimestamp(t);
+                    this->pBuffer->setTimestamp(t);
                     // Send samples.
                     bool result = this->sendAccBuffer();
                 }
@@ -221,10 +221,10 @@ void AccelerometerGATTSvcClient::onNotify(wb::ResourceId resourceId,
                 const WB_RES::Characteristic &charValue = value.convertTo<const WB_RES::Characteristic&>();
                 uint16_t size = *reinterpret_cast<const uint16_t*>(&charValue.bytes[0]);
 
-                DEBUGLOG("onNotify: mObjectSize: len: %d, new size: %d", charValue.bytes.size(), size);
+                DEBUGLOG("onNotify: mBufferSize: len: %d, new size: %d", charValue.bytes.size(), size);
 
                 // Update the Object Size.
-                this->setObjectSize(size);
+                this->setBufferSize(size);
             }
             break;
         }
@@ -258,12 +258,12 @@ void AccelerometerGATTSvcClient::configGattSvc()
     // Specify Interval Characteristic
     measurementIntervalChar.props = wb::MakeArray<WB_RES::GattProperty>(measurementIntervalCharProps, 2);
     measurementIntervalChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_MEASUREMENT_INTERVAL_CHARACTERISTIC_UUID16), sizeof(uint16_t));
-    measurementIntervalChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->measurementInterval), sizeof(uint16_t));
+    measurementIntervalChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->mMeasurementInterval), sizeof(uint16_t));
 
     // Specify Size Characteristic
     objectSizeChar.props = wb::MakeArray<WB_RES::GattProperty>(objectSizeCharProps, 2);
     objectSizeChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_OBJECT_SIZE_CHARACTERISTIC_UUID16), sizeof(uint16_t));
-    objectSizeChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->mObjectSize), sizeof(uint16_t));
+    objectSizeChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->mBufferSize), sizeof(uint16_t));
 
     // Combine Characteristics to Service
     accGattSvc.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ACCELEROMETER_SERVICE_UUID16), sizeof(uint16_t));
@@ -304,12 +304,12 @@ acc_vec4_t AccelerometerGATTSvcClient::convertAccSample(whiteboard::FloatVector3
 bool AccelerometerGATTSvcClient::sendAccBuffer()
 {
     // Get the current buffer and its size.
-    size_t size = this->accBuffer->getSingleBufferSize();
+    size_t size = this->pBuffer->getSingleBufferSize();
 
-    uint8_t* currentBuffer = this->accBuffer->getCurrentBuffer();
+    uint8_t* currentBuffer = this->pBuffer->getCurrentBuffer();
 
     // Move to next message buffer.
-    this->accBuffer->switchBuffer();
+    this->pBuffer->switchBuffer();
 
     // Generate Acceleration Characteristics value to send.
     WB_RES::Characteristic accCharacteristic;
@@ -328,7 +328,7 @@ bool AccelerometerGATTSvcClient::sendAccBuffer()
 
 uint32_t AccelerometerGATTSvcClient::getSampleRate()
 {
-    return this->toSampleRate(this->measurementInterval);
+    return this->toSampleRate(this->mMeasurementInterval);
 }
 
 uint32_t AccelerometerGATTSvcClient::toSampleRate(uint16_t interval)
@@ -353,10 +353,10 @@ void AccelerometerGATTSvcClient::setMeasurementInterval(uint16_t value)
     // Unsubscribe from current Accelerometer subscription
     this->unsubscribeFromAccSamples();
     // Update measurement interval.
-    this->measurementInterval = value;
+    this->mMeasurementInterval = value;
     // Set measurement interval to GATT Characteristics value.
     WB_RES::Characteristic measurementIntervalChar;
-    measurementIntervalChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->measurementInterval, sizeof(uint16_t));
+    measurementIntervalChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->mMeasurementInterval, sizeof(uint16_t));
     this->asyncPut(
         WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
         AsyncRequestOptions::Empty,
@@ -365,7 +365,7 @@ void AccelerometerGATTSvcClient::setMeasurementInterval(uint16_t value)
         measurementIntervalChar
     );
     // Reset current Accelerometer buffers and start over.
-    this->accBuffer->resetCurrentBuffer();
+    this->pBuffer->resetCurrentBuffer();
     // Subscribe to new Accelerometer subscriptions.
     this->subscribeToAccSamples();
 }
@@ -394,16 +394,16 @@ void AccelerometerGATTSvcClient::unsubscribeFromAccSamples()
     );
 }
 
-void AccelerometerGATTSvcClient::setObjectSize(uint16_t value)
+void AccelerometerGATTSvcClient::setBufferSize(uint16_t value)
 {
     // Set new object size.
-    this->mObjectSize = value;
+    this->mBufferSize = value;
     // Change object size in buffers.
-    this->accBuffer->setLength((size_t)value);
+    this->pBuffer->setLength((size_t)value);
     // Set object size to GATT Characteristics value.
     if (this->mBufferSizeCharHandle != 0) {
         WB_RES::Characteristic objectSizeChar;
-        objectSizeChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->mObjectSize, sizeof(uint16_t));
+        objectSizeChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->mBufferSize, sizeof(uint16_t));
         asyncPut(
             WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
             AsyncRequestOptions::Empty,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+// #include <memory>
 #include <whiteboard/LaunchableModule.h>
 #include <whiteboard/ResourceClient.h>
 
@@ -152,7 +152,7 @@ private:
      * 
      * @param value ECG measurement interval in milliseconds.
      */
-    void setMeasurementInterval(uint16_t value);
+    void setSampleRate(uint16_t value);
 
     /**
      * @brief Subscribes to ECG samples.
@@ -164,11 +164,11 @@ private:
     void unsubscribeFromEcgSamples();
 
     /** Number of objects per sample message. */
-    uint16_t mObjectSize;
+    uint16_t mBufferSize;
     /**
      * @brief Sets the number of objects per sample message.
      * 
      * @param value Number of objects per sample message.
      */
-    void setObjectSize(uint16_t value);
+    void setBufferSize(uint16_t value);
 };

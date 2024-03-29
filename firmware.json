@@ -1,0 +1,263 @@
+[
+    {
+        "uuid": "00001800-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 3,
+                        "uuid": "00002a00-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 3,
+                "properties": 10,
+                "uuid": "00002a00-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 5,
+                        "uuid": "00002a01-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 5,
+                "properties": 2,
+                "uuid": "00002a01-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 7,
+                        "uuid": "00002a04-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 7,
+                "properties": 2,
+                "uuid": "00002a04-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 9,
+                        "uuid": "00002aa6-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 9,
+                "properties": 2,
+                "uuid": "00002aa6-0000-1000-8000-00805f9b34fb"
+            }
+        ],
+        "handle": 1
+    },
+    {
+        "uuid": "00001801-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 12,
+                        "uuid": "00002a05-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 13,
+                        "uuid": "00002902-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 12,
+                "properties": 32,
+                "uuid": "00002a05-0000-1000-8000-00805f9b34fb"
+            }
+        ],
+        "handle": 10
+    },
+    {
+        "uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 16,
+                        "uuid": "00002a29-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 16,
+                "properties": 2,
+                "uuid": "00002a29-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 18,
+                        "uuid": "00002a25-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 18,
+                "properties": 2,
+                "uuid": "00002a25-0000-1000-8000-00805f9b34fb"
+            }
+        ],
+        "handle": 14
+    },
+    {
+        "uuid": "0000180f-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 21,
+                        "uuid": "00002a19-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 22,
+                        "uuid": "00002902-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 21,
+                "properties": 18,
+                "uuid": "00002a19-0000-1000-8000-00805f9b34fb"
+            }
+        ],
+        "handle": 19
+    },
+    {
+        "uuid": "0000fdf3-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 25,
+                        "uuid": "6b200002-ff4e-4979-8186-fb7ba486fcd7"
+                    },
+                    {
+                        "handle": 26,
+                        "uuid": "00002902-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 25,
+                "properties": 16,
+                "uuid": "6b200002-ff4e-4979-8186-fb7ba486fcd7"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 28,
+                        "uuid": "6b200001-ff4e-4979-8186-fb7ba486fcd7"
+                    },
+                    {
+                        "handle": 29,
+                        "uuid": "00002900-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 28,
+                "properties": 140,
+                "uuid": "6b200001-ff4e-4979-8186-fb7ba486fcd7"
+            }
+        ],
+        "handle": 23
+    },
+    {
+        "uuid": "0000180d-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 32,
+                        "uuid": "00002a37-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 33,
+                        "uuid": "00002902-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 32,
+                "properties": 16,
+                "uuid": "00002a37-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 35,
+                        "uuid": "00002a38-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 35,
+                "properties": 2,
+                "uuid": "00002a38-0000-1000-8000-00805f9b34fb"
+            }
+        ],
+        "handle": 30
+    },
+    {
+        "uuid": "00001859-0000-1000-8000-00805f9b34fb",
+        "primary": true,
+        "characteristics": [
+            {
+                "descriptors": [
+                    {
+                        "handle": 38,
+                        "uuid": "00002bdd-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 39,
+                        "uuid": "00002902-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 38,
+                "properties": 16,
+                "uuid": "00002bdd-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 41,
+                        "uuid": "00002be2-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 42,
+                        "uuid": "00002902-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 41,
+                "properties": 16,
+                "uuid": "00002be2-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 44,
+                        "uuid": "00002be3-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 45,
+                        "uuid": "00002900-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 44,
+                "properties": 138,
+                "uuid": "00002be3-0000-1000-8000-00805f9b34fb"
+            },
+            {
+                "descriptors": [
+                    {
+                        "handle": 47,
+                        "uuid": "00002be4-0000-1000-8000-00805f9b34fb"
+                    },
+                    {
+                        "handle": 48,
+                        "uuid": "00002900-0000-1000-8000-00805f9b34fb"
+                    }
+                ],
+                "handle": 47,
+                "properties": 138,
+                "uuid": "00002be4-0000-1000-8000-00805f9b34fb"
+            }
+        ],
+        "handle": 36
+    }
+]

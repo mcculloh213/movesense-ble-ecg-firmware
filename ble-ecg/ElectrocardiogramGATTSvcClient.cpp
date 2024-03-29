@@ -27,9 +27,9 @@ ElectrocardiogramGATTSvcClient::ElectrocardiogramGATTSvcClient() :
     mSampleCounter(0),
     mSampleSkipCount(2),
     mSampleRate(DEFAULT_ECG_MEASUREMENT_INTERVAL),
-    mObjectSize(DEFAULT_ECG_OBJECT_SIZE)
+    mBufferSize(DEFAULT_ECG_OBJECT_SIZE)
 {
-    this->pBuffer = new SeriesBuffer<ecg_t>(this->mObjectSize, numberOfEcgBuffers);
+    this->pBuffer = new SeriesBuffer<ecg_t>(this->mBufferSize, numberOfEcgBuffers);
 }
 
 ElectrocardiogramGATTSvcClient::~ElectrocardiogramGATTSvcClient()
@@ -60,7 +60,7 @@ bool ElectrocardiogramGATTSvcClient::startModule()
     this->mModuleState = WB_RES::ModuleStateValues::STARTED;
 
     // Set ECG measurement interval to compute ECG sampling frequency.
-    this->setMeasurementInterval(DEFAULT_ECG_MEASUREMENT_INTERVAL);
+    this->setSampleRate(DEFAULT_ECG_MEASUREMENT_INTERVAL);
     // Subscribe to ECG samples with computed ECG sampling frequency.
     this->subscribeToEcgSamples();
 
@@ -228,7 +228,7 @@ void ElectrocardiogramGATTSvcClient::onNotify(wb::ResourceId resourceId,
                 DEBUGLOG("onNotify: Sample Rate: len: %d, new: %d", charValue.bytes.size(), sampleRate);
 
                 // Update Electrocardiogram sample rate.
-                this->setMeasurementInterval(sampleRate);
+                this->setSampleRate(sampleRate);
             }
             else if (charHandle == this->mBufferSizeCharHandle)
             {
@@ -241,7 +241,7 @@ void ElectrocardiogramGATTSvcClient::onNotify(wb::ResourceId resourceId,
                 DEBUGLOG("onNotify: Object Size: len: %d, new size: %d", charValue.bytes.size(), size);
 
                 // Update the Object Size.
-                this->setObjectSize(size);
+                this->setBufferSize(size);
             }
             break;
         }
@@ -280,7 +280,7 @@ void ElectrocardiogramGATTSvcClient::configGattSvc()
     // Specify Buffer Size Characteristic
     bufferSizeChar.props = wb::MakeArray<WB_RES::GattProperty>(bufferSizeCharProps, 2);
     bufferSizeChar.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ELECTROCARDIOGRAM_OBJECT_SIZE_CHARACTERISTIC_UUID16), sizeof(uint16_t));
-    bufferSizeChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->mObjectSize), sizeof(uint16_t));
+    bufferSizeChar.initial_value = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&this->mBufferSize), sizeof(uint16_t));
 
     // Combine Characteristics to Service
     gattSvc.uuid = wb::MakeArray<uint8_t>(reinterpret_cast<const uint8_t*>(&ELECTROCARDIOGRAM_SERVICE_UUID16), sizeof(uint16_t));
@@ -290,6 +290,7 @@ void ElectrocardiogramGATTSvcClient::configGattSvc()
     this->asyncPost(WB_RES::LOCAL::COMM_BLE_GATTSVC(), AsyncRequestOptions::Empty, gattSvc);
 }
 
+// TODO: Does this need to be an int32?
 ecg_t ElectrocardiogramGATTSvcClient::convertEcgSample(int32 ecgValue)
 {
     if (ecgValue > ECG_MAX_VALUE)
@@ -328,4 +329,92 @@ bool ElectrocardiogramGATTSvcClient::sendEcgBuffer()
         charData
     );
     return true;
+}
+
+uint32_t ElectrocardiogramGATTSvcClient::getSampleRate()
+{
+    return (uint32_t)(1000 / this->mSampleRate);
+}
+
+void ElectrocardiogramGATTSvcClient::setSampleRate(uint16_t value)
+{
+    // Ensure that value is valid or fall back to `DEFAULT_ECG_MEASUREMENT_INTERVAL`.
+    switch (value)
+    {
+        case  2: // 500 Hz
+        case  4: // 250 Hz
+        case  8: // 125 Hz
+        case 10: // 100 Hz
+            break;
+        default:
+            value = DEFAULT_ECG_MEASUREMENT_INTERVAL;
+            break;
+    }
+
+    // Unsubscribe from current ECG subscription.
+    this->unsubscribeFromEcgSamples();
+    // Update measurement interval.
+    this->mSampleRate = value;
+    // Update ECG sample skip count.
+    this->mSampleSkipCount = value / ECG_BASE_MEASUREMENT_INTERVAL;
+    // Reset ecg sample counter.
+    this->mSampleCounter = 0;
+    // Set measurement interval to GATT Characteristics value.
+    WB_RES::Characteristic sampleRateChar;
+    sampleRateChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->mSampleRate, sizeof(uint16_t));
+    this->asyncPut(
+        WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
+        AsyncRequestOptions::Empty,
+        this->mSvcHandle,
+        this->mSampleRateCharHandle,
+        sampleRateChar
+    );
+    // Reset current ECG buffer and start over.
+    this->pBuffer->resetCurrentBuffer();
+    // Subscribe to new ECG subscription.
+    this->subscribeToEcgSamples();
+}
+
+void ElectrocardiogramGATTSvcClient::subscribeToEcgSamples()
+{
+    // Compute desired sample rate.
+    uint32_t sampleRate = this->getSampleRate();
+    // Subscribe to ECG samples with the desired ECG sample rate.
+    this->asyncSubscribe(
+        WB_RES::LOCAL::MEAS_ECG_REQUIREDSAMPLERATE(),
+        AsyncRequestOptions::Empty,
+        sampleRate
+    );
+}
+
+void ElectrocardiogramGATTSvcClient::unsubscribeFromEcgSamples()
+{
+    // Compute desired sample rate.
+    uint32_t sampleRate = this->getSampleRate();
+    // Unsubscribe from ECG samples with desired ECG sample rate.
+    this->asyncUnsubscribe(
+        WB_RES::LOCAL::MEAS_ECG_REQUIREDSAMPLERATE(),
+        AsyncRequestOptions::Empty,
+        sampleRate
+    );
+}
+
+void ElectrocardiogramGATTSvcClient::setBufferSize(uint16_t value)
+{
+    // Set new object size.
+    this->mBufferSize = value;
+    // Change object size in buffer.
+    this->pBuffer->setLength((size_t)value);
+    // Set object size to GATT Characteristics value.
+    if (this->mBufferSizeCharHandle != 0) {
+        WB_RES::Characteristic bufferSizeChar;
+        bufferSizeChar.bytes = wb::MakeArray<uint8_t>((uint8_t*)&this->mBufferSize, sizeof(uint16_t));
+        asyncPut(
+            WB_RES::LOCAL::COMM_BLE_GATTSVC_SVCHANDLE_CHARHANDLE(),
+            AsyncRequestOptions::Empty,
+            this->mSvcHandle,
+            this->mBufferSizeCharHandle,
+            bufferSizeChar
+        );
+    }
 }

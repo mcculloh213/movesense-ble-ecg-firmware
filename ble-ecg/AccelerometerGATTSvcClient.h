@@ -85,7 +85,7 @@ private:
     // Buffers:
 
     /** Buffer to hold Accelerometer samples. */
-    SeriesBuffer<acc_vec4_t>* accBuffer;
+    SeriesBuffer<acc_vec4_t>* pBuffer;
 
 
     // Accelerometer Samples:
@@ -118,7 +118,7 @@ private:
      *  - 20 ms =  52 Hz
      *  - 40 ms =  26 Hz
      */
-    uint16_t measurementInterval;
+    uint16_t mMeasurementInterval;
     /**
      * @brief Gets the desired sampling rate.
      *  - 208 Hz =   5 ms
@@ -157,11 +157,11 @@ private:
     void unsubscribeFromAccSamples();
 
     /** Number of objects per sample message. */
-    uint16_t mObjectSize;
+    uint16_t mBufferSize;
     /**
      * @brief Sets the number of objects per sample message.
      * 
      * @param value Number of objects per sample message.
      */
-    void setObjectSize(uint16_t value);
+    void setBufferSize(uint16_t value);
 };

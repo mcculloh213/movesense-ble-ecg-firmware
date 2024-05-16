@@ -13,7 +13,7 @@
  *  -  8 ms =  125 Hz
  *  - 10 ms =  100 Hz
  */
-const int DEFAULT_ECG_MEASUREMENT_INTERVAL = 4;
+const int DEFAULT_ECG_MEASUREMENT_INTERVAL = 10;
 
 /**
  * @brief Measurement interval of the sensor.
@@ -32,7 +32,7 @@ const uint16_t DEFAULT_ECG_OBJECT_SIZE = 16;
  *  - 20 ms =  52 Hz
  *  - 40 ms =  26 Hz
  */
-const int DEFAULT_MOV_MEASUREMENT_INTERVAL = 20;
+const int DEFAULT_MOV_MEASUREMENT_INTERVAL = 40;
 
 /** Default number of Movement samples per message. */
 const uint16_t DEFAULT_MOV_OBJECT_SIZE = 8;

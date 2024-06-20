@@ -1,9 +1,10 @@
 // #include "EcgGATTSvcClient.h"
 // #include "MovGATTSvcClient.h"
 #include "ActivityGATTSvcClient.h"
-#include "AccelerometerGATTSvcClient.h"
-#include "GyroscopeGATTSvcClient.h"
-#include "MagnetometerGATTSvcClient.h"
+// #include "AccelerometerGATTSvcClient.h"
+#include "ClockGattSvcClient.h"
+// #include "GyroscopeGATTSvcClient.h"
+// #include "MagnetometerGATTSvcClient.h"
 #include "WakeClient.h"
 
 #include "movesense.h"
@@ -15,10 +16,11 @@ MOVESENSE_APPLICATION_STACKSIZE(1024)
 MOVESENSE_PROVIDERS_BEGIN(3)
 
 // MOVESENSE_PROVIDER_DEF(EcgGATTSvcClient)
-// MOVESENSE_PROVIDER_DEF(ActivityGATTSvcClient)
+MOVESENSE_PROVIDER_DEF(ActivityGATTSvcClient)
 // MOVESENSE_PROVIDER_DEF(AccelerometerGATTSvcClient)
-MOVESENSE_PROVIDER_DEF(GyroscopeGATTSvcClient)
-MOVESENSE_PROVIDER_DEF(MagnetometerGATTSvcClient)
+MOVESENSE_PROVIDER_DEF(ClockGATTSvcClient)
+// MOVESENSE_PROVIDER_DEF(GyroscopeGATTSvcClient)
+// MOVESENSE_PROVIDER_DEF(MagnetometerGATTSvcClient)
 MOVESENSE_PROVIDER_DEF(WakeClient)
 
 MOVESENSE_PROVIDERS_END(3)

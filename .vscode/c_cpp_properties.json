@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/MovesenseCoreLib/include/whiteboard/src",
-                "${workspaceFolder}/MovesenseCoreLib/include/whiteboard"
+                "${workspaceFolder}/MovesenseCoreLib/include/whiteboard",
+                "${workspaceFolder}/MovesenseCoreLib/generated/GCCARM/Debug"
             ],
             "defines": [
                 "_DEBUG",

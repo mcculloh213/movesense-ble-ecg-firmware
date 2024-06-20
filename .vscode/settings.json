@@ -3,6 +3,11 @@
         "Movesense"
     ],
     "files.associations": {
-        "memory": "cpp"
+        "memory": "cpp",
+        "algorithm": "cpp",
+        "functional": "cpp",
+        "type_traits": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp"
     }
 }
